@@ -153,6 +153,7 @@ if (!statusTableMatch) {
   let sawWsBuilt = false
   let sawBoardPlayBuilt = false
   let sawPlayUiBuilt = false
+  let sawPlaywrightBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -181,6 +182,9 @@ if (!statusTableMatch) {
     if (/^Play UI$/i.test(area) && /^Built$/i.test(state)) {
       sawPlayUiBuilt = true
     }
+    if (/^Playwright e2e$/i.test(area) && /^Built$/i.test(state)) {
+      sawPlaywrightBuilt = true
+    }
     if (/^(Analysis UI|Implementation)$/i.test(area) && !/^Planned$/i.test(state)) {
       fail(`STATUS row "${area}" must stay Planned until code exists; got "${state}"`)
     }
@@ -194,6 +198,7 @@ if (!statusTableMatch) {
   if (!sawWsBuilt) fail('STATUS must include "| WS client | Built |"')
   if (!sawBoardPlayBuilt) fail('STATUS must include "| Board play | Built |"')
   if (!sawPlayUiBuilt) fail('STATUS must include "| Play UI | Built |"')
+  if (!sawPlaywrightBuilt) fail('STATUS must include "| Playwright e2e | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }

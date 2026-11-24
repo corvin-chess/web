@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -18,3 +21,88 @@ jobs:
         run: npm ci
       - name: Verify
         run: npm run verify
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: corvin
+          POSTGRES_PASSWORD: corvin_dev_only_change_me
+          POSTGRES_DB: corvin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U corvin -d corvin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://corvin:corvin_dev_only_change_me@localhost:5432/corvin
+      REDIS_URL: redis://localhost:6379/0
+      CORVIN_ENV: test
+      CORVIN_RP_ID: localhost
+      # webauthn-rs rejects 127.0.0.1; keep host name as localhost.
+      CORVIN_RP_ORIGIN: http://localhost:5173
+      CORVIN_OTP_PEPPER: e2e-only-otp-pepper-change-me!!
+      CORVIN_E2E: "1"
+      CORVIN_E2E_ORIGIN: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: corvin-chess/server
+          path: _server
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install web
+        run: npm ci
+      - name: Install psql + redis-cli
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client redis-tools
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build server
+        working-directory: _server
+        run: cargo build --locked --release -p corvin-server
+      - name: Migrate
+        working-directory: _server
+        run: ./target/release/corvin-server migrate up
+      - name: Seed e2e sessions
+        env:
+          CORVIN_E2E_SEED: "1"
+        run: node scripts/e2e-seed.mjs
+      - name: Start server
+        working-directory: _server
+        run: |
+          ./target/release/corvin-server > /tmp/corvin-server.log 2>&1 &
+          echo $! > /tmp/corvin-server.pid
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:3000/health >/dev/null; then
+              echo "server healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "server failed to become healthy"
+          cat /tmp/corvin-server.log
+          exit 1
+      - name: Playwright two-browser
+        run: npm run test:e2e
+      - name: Server log on failure
+        if: failure()
+        run: |
+          cat /tmp/corvin-server.log || true

@@ -79,5 +79,19 @@
     "accept": "Accetta",
     "decline": "Rifiuta",
     "withdraw": "Ritira offerta"
+  },
+  "prefs": {
+    "title": "Preferenze",
+    "theme": "Tema",
+    "themeSystem": "Sistema",
+    "themeLight": "Chiaro",
+    "themeDark": "Scuro",
+    "soundMute": "Disattiva tutti i suoni",
+    "soundEvents": "Suoni",
+    "soundMove": "Mossa",
+    "soundCapture": "Cattura",
+    "soundCheck": "Scacco",
+    "soundGameEnd": "Fine partita",
+    "soundOffer": "Offerta"
   }
 }

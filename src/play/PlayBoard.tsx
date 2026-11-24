@@ -19,6 +19,8 @@ import {
 import { formatMoveAnnouncement, sanForUci } from "./announceSan"
 import { geometricPremoveDests } from "./premoveGeometry"
 import { pendingFromSquares, type PendingPremove } from "./premove"
+import { soundEventFromSan } from "./soundEvent"
+import { playSound } from "./soundPlayer"
 
 type PlayBoardProps = {
   rules: ChessRules
@@ -288,6 +290,7 @@ export const PlayBoard = ({
             setStatus(msg)
             if (next.didMove && next.lastUci) {
               const san = sanForUci(rules.toSan, prev.fen, next.lastUci)
+              playSound(soundEventFromSan(san))
               announce?.(
                 formatMoveAnnouncement(shell.game.moveAnnounced, san)
               )

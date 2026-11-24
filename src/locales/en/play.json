@@ -1,0 +1,8 @@
+{
+  "loadingBoard": "Loading board…",
+  "loadError": "Could not load chess rules.",
+  "selectPiece": "Select a piece to see legal moves.",
+  "selected": "Selected {square}. Legal destinations: {count}.",
+  "played": "Played {uci}",
+  "moveFailed": "Could not apply that move."
+}

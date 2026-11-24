@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" width="45" height="45" role="img" aria-label="White Rook">
+
+  
+  <path fill="#e8ecf4" stroke="#2f3d63" stroke-width="1.5" stroke-linejoin="round"
+    d="M8.5 40.2h28c1.4 0 2.3.9 2.3 2v.3c0 .8-.7 1.5-1.5 1.5H7.7c-.8 0-1.5-.7-1.5-1.5v-.3c0-1.1.9-2 2.3-2z"/>
+  <path fill="#f4f6fa" stroke="none"
+    d="M10.2 40.5h24.6c.7 0 1.2.3 1.2.8v.4H9v-.4c0-.5.5-.8 1.2-.8z"/>
+  <path fill="#e8ecf4" stroke="#2f3d63" stroke-width="1.5" stroke-linejoin="round"
+    d="M11.5 36.2h22l1.5 4H10z"/>
+
+  <path fill="#e8ecf4" stroke="#2f3d63" stroke-width="1.5" stroke-linejoin="round"
+    d="M13.5 35.8h18V19.2h-18z"/>
+  <path fill="#f4f6fa" stroke="none"
+    d="M15.2 34h14.6V20.8H15.2z"/>
+  <path fill="#e8ecf4" stroke="#2f3d63" stroke-width="1.5" stroke-linejoin="round"
+    d="M10.5 19.2h24v-3.2h-24z"/>
+  <path fill="#e8ecf4" stroke="#2f3d63" stroke-width="1.5" stroke-linejoin="round"
+    d="M10.5 4.8h7.2v7.2h9.6V4.8h7.2v11.2H10.5z"/>
+  <path fill="#f4f6fa" stroke="none"
+    d="M12 6.2h5v5.4h11V6.2h5v8.4H12z"/>
+
+</svg>

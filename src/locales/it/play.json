@@ -1,0 +1,8 @@
+{
+  "loadingBoard": "Caricamento scacchiera…",
+  "loadError": "Impossibile caricare le regole degli scacchi.",
+  "selectPiece": "Seleziona un pezzo per vedere le mosse legali.",
+  "selected": "Selezionato {square}. Destinazioni legali: {count}.",
+  "played": "Giocato {uci}",
+  "moveFailed": "Impossibile applicare quella mossa."
+}

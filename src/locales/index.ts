@@ -1,12 +1,20 @@
 import enAuth from "./en/auth.json"
 import itAuth from "./it/auth.json"
+import enPlay from "./en/play.json"
+import itPlay from "./it/play.json"
 
 export type AuthLocale = typeof enAuth
+export type PlayLocale = typeof enPlay
 export type LocaleCode = "en" | "it"
 
-const catalogs: Record<LocaleCode, AuthLocale> = {
+const authCatalogs: Record<LocaleCode, AuthLocale> = {
   en: enAuth,
   it: itAuth,
+}
+
+const playCatalogs: Record<LocaleCode, PlayLocale> = {
+  en: enPlay,
+  it: itPlay,
 }
 
 export const DEFAULT_LOCALE: LocaleCode = "en"
@@ -17,10 +25,15 @@ export const resolveLocale = (raw: string | null | undefined): LocaleCode => {
   return base === "it" ? "it" : "en"
 }
 
-export const getAuthStrings = (locale: LocaleCode): AuthLocale => catalogs[locale]
+export const getAuthStrings = (locale: LocaleCode): AuthLocale => authCatalogs[locale]
 
-export const formatAuthString = (
+export const getPlayStrings = (locale: LocaleCode): PlayLocale => playCatalogs[locale]
+
+export const formatLocaleString = (
   template: string,
   vars: Record<string, string>
 ): string =>
   template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? `{${key}}`)
+
+/** @deprecated Use formatLocaleString */
+export const formatAuthString = formatLocaleString

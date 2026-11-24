@@ -1,0 +1,19 @@
+[package]
+name = "corvin-play-wasm"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "AGPL-3.0-or-later"
+description = "Thin WASM bridge: chess-core legalMoves + applyMove for the Corvin web client"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+corvin-chess-core = { git = "https://github.com/corvin-chess/chess-core", rev = "f20f50217cd173a35b197876471af9802dbb6403" }
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = true

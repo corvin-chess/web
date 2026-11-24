@@ -99,6 +99,7 @@ if (app) {
   if (!/path=["']\/play["']/.test(app)) fail('App.tsx must declare path="/play"')
   if (!/PlayPage/.test(app)) fail("App.tsx must render PlayPage")
   if (!/react-router-dom/.test(app)) fail("App.tsx must use react-router-dom")
+  // /login Auth UI is CV-191; scaffold only requires /play remain wired.
   if (!process.exitCode) ok("App.tsx wires /play")
 }
 

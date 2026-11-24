@@ -48,7 +48,7 @@ beforeEach(() => {
 })
 
 describe("PlayPage", () => {
-  it("renders Play shell with local board after rules load", async () => {
+  it("renders lobby + local board when signed out", async () => {
     render(
       <MemoryRouter>
         <AuthProvider>
@@ -64,12 +64,39 @@ describe("PlayPage", () => {
       expect(screen.getByRole("grid", { name: "Chess board" })).toBeInTheDocument()
     })
     expect(screen.getByRole("region", { name: "Local board" })).toBeInTheDocument()
-    expect(main.querySelector(".local-board-host")).not.toBeNull()
+    expect(screen.getByRole("region", { name: "Lobby" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /quick pair/i })).toBeDisabled()
     expect(loadWasmRules).toHaveBeenCalled()
     await waitFor(() => {
       expect(screen.getByRole("link", { name: /sign in/i })).toBeInTheDocument()
     })
   })
+
+  it("shows signed-in lobby gated until WS ready", async () => {
+    vi.mocked(authApi.getSession).mockResolvedValue({
+      userId: "u1",
+      username: "Alice",
+      csrfToken: "csrf",
+      dmEnabled: true,
+      publicChatEnabled: true,
+    })
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <PlayPage />
+        </AuthProvider>
+      </MemoryRouter>
+    )
+    await waitFor(() => {
+      expect(screen.getByText("Alice")).toBeInTheDocument()
+    })
+    // Without a live server, the client stays reconnecting; quick pair stays gated.
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /quick pair/i })).toBeDisabled()
+    })
+    expect(screen.getByText(/matchmaking unavailable/i)).toBeInTheDocument()
+  })
+
 
   it("shows an alert when WASM rules fail to load", async () => {
     vi.mocked(loadWasmRules).mockRejectedValueOnce(new Error("boom"))

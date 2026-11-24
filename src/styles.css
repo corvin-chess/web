@@ -68,19 +68,35 @@ body {
   outline-offset: 2px;
 }
 
+.play-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 0 1rem 2rem;
+}
+
+.play-layout--lobby {
+  flex-direction: column;
+  align-items: center;
+}
+
+.play-board,
 .local-board {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 1rem 2rem;
 }
 
+.play-board-host,
 .local-board-host {
   width: min(100%, 70vh);
   max-width: 36rem;
 }
 
+.play-board-status,
 .local-board-status,
 .play-board-loading,
 .play-board-error {
@@ -91,8 +107,158 @@ body {
   text-align: center;
 }
 
-.play-board-error {
+.play-board-error,
+.game-error {
   color: var(--danger);
+}
+
+.play-nav-reconnect {
+  color: var(--mist);
+  font-size: 0.9rem;
+}
+
+.lobby-panel {
+  width: min(100%, 28rem);
+  padding: 0.5rem 0 1rem;
+}
+
+.lobby-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.lobby-hint,
+.lobby-waiting,
+.lobby-muted {
+  margin: 0 0 0.75rem;
+  color: var(--mist);
+  font-size: 0.95rem;
+}
+
+.lobby-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.lobby-chip,
+.lobby-primary,
+.game-actions button,
+.game-offer-actions button {
+  appearance: none;
+  border: 1px solid var(--indigo);
+  background: var(--panel, var(--slate));
+  color: var(--body);
+  font: inherit;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+
+.lobby-chip[aria-pressed="true"] {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.lobby-chip:focus-visible,
+.lobby-primary:focus-visible,
+.game-actions button:focus-visible,
+.game-offer-actions button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.lobby-chip:disabled,
+.lobby-primary:disabled,
+.game-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lobby-primary {
+  border-color: var(--gold);
+}
+
+.lobby-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.game-chrome {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: min(100%, 14rem);
+  max-width: 18rem;
+  font-family: var(--font-ui);
+}
+
+.game-seat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.game-seat-name {
+  font-size: 0.95rem;
+  color: var(--mist);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-clock {
+  font-family: var(--font-mono, var(--font-ui));
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.375rem, 4vw, 1.75rem);
+  color: var(--body);
+  font-style: normal;
+}
+
+.game-clock--active {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 0.2em;
+}
+
+.game-clock--low {
+  animation: corvin-clock-pulse 1s ease-in-out infinite;
+}
+
+@keyframes corvin-clock-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-clock--low {
+    animation: none;
+  }
+}
+
+.game-turn,
+.game-san,
+.game-rating,
+.game-offer,
+.game-offer-pending {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.game-actions,
+.game-offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* Legal-move markers (DESIGN.md mist disc / capture ring). */

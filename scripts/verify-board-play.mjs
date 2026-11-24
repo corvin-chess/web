@@ -85,8 +85,21 @@ if (!existsSync(enPlay) || !existsSync(itPlay)) {
   else ok("en/it play.json locale parity")
 }
 
+const playBoardPath = join(root, "src", "play", "PlayBoard.tsx")
 const localBoard = readFileSync(join(root, "src", "play", "LocalBoard.tsx"), "utf8")
-if (!localBoard.includes("mountBoard") || !localBoard.includes("createLocalPlayController")) {
+if (existsSync(playBoardPath)) {
+  const playBoard = readFileSync(playBoardPath, "utf8")
+  if (!playBoard.includes("mountBoard") || !playBoard.includes("createLocalPlayController")) {
+    fail("PlayBoard must use mountBoard + local play controller")
+  } else {
+    ok("PlayBoard uses design-system mountBoard")
+  }
+  if (!localBoard.includes("PlayBoard")) {
+    fail("LocalBoard must wrap PlayBoard")
+  } else {
+    ok("LocalBoard wraps PlayBoard")
+  }
+} else if (!localBoard.includes("mountBoard") || !localBoard.includes("createLocalPlayController")) {
   fail("LocalBoard must use mountBoard + local play controller")
 } else {
   ok("LocalBoard uses design-system mountBoard")

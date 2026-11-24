@@ -152,6 +152,7 @@ if (!statusTableMatch) {
   let sawAuthBuilt = false
   let sawWsBuilt = false
   let sawBoardPlayBuilt = false
+  let sawPlayUiBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -177,10 +178,10 @@ if (!statusTableMatch) {
     if (/^Board play$/i.test(area) && /^Built$/i.test(state)) {
       sawBoardPlayBuilt = true
     }
-    if (
-      /^(Play UI|Analysis UI|Implementation)$/i.test(area) &&
-      !/^Planned$/i.test(state)
-    ) {
+    if (/^Play UI$/i.test(area) && /^Built$/i.test(state)) {
+      sawPlayUiBuilt = true
+    }
+    if (/^(Analysis UI|Implementation)$/i.test(area) && !/^Planned$/i.test(state)) {
       fail(`STATUS row "${area}" must stay Planned until code exists; got "${state}"`)
     }
     if (/^Implementation$/i.test(area) && /^Planned$/i.test(state)) {
@@ -192,6 +193,7 @@ if (!statusTableMatch) {
   if (!sawAuthBuilt) fail('STATUS must include "| Auth UI | Built |"')
   if (!sawWsBuilt) fail('STATUS must include "| WS client | Built |"')
   if (!sawBoardPlayBuilt) fail('STATUS must include "| Board play | Built |"')
+  if (!sawPlayUiBuilt) fail('STATUS must include "| Play UI | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }

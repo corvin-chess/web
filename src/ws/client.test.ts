@@ -379,6 +379,63 @@ describe("WsClient reconnect + ResumeGame", () => {
   })
 })
 
+describe("WsClient play send + GameStart", () => {
+  it("send() adds PROTOCOL v and emits gameStart", async () => {
+    const mock = createMockWebSocket()
+    const client = new WsClient({
+      url: "ws://127.0.0.1:3000/ws",
+      locale: "en",
+      WebSocket: mock.WebSocket,
+      reconnectDelayMs: () => 0,
+    })
+    client.connect()
+    const sock = mock.instances[0]!
+    sock.emitOpen()
+    sock.emitMessage({
+      typ: "Welcome",
+      v: 1,
+      session_id: "s1",
+      server_time: 1,
+      features: [],
+    })
+    sock.sent.length = 0
+    client.send({
+      typ: "QuickPair",
+      time_class: "blitz",
+      initial_ms: 300_000,
+      increment_ms: 2000,
+      rated: true,
+      color: "random",
+    })
+    expect(parseSent(sock)[0]).toMatchObject({
+      typ: "QuickPair",
+      v: 1,
+      time_class: "blitz",
+      rated: true,
+    })
+
+    const startP = new Promise<string>((resolve) => {
+      client.on("gameStart", (msg) => resolve(msg.game_id))
+    })
+    sock.emitMessage({
+      typ: "GameStart",
+      v: 1,
+      game_id: "01GAME",
+      color: "w",
+      config: {
+        time_class: "blitz",
+        initial_ms: 300_000,
+        increment_ms: 2000,
+        rated: true,
+      },
+      opponents: { w: { id: "u1" }, b: { id: "u2" } },
+      start_clocks: { w: 300_000, b: 300_000 },
+    })
+    await expect(startP).resolves.toBe("01GAME")
+    client.disconnect()
+  })
+})
+
 describe("wsUrl", () => {
   it("maps http page origin to ws and https to wss with /ws path", async () => {
     const { wsUrlFromPage } = await import("./url")
@@ -388,3 +445,4 @@ describe("wsUrl", () => {
     )
   })
 })
+

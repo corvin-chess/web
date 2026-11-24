@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "verify": "npm test && npm run build && node scripts/verify-scaffold.mjs --shape-only && node scripts/verify-auth.mjs && node scripts/verify-ws.mjs && node scripts/verify-board-play.mjs && node scripts/verify-readme.mjs",
+    "verify": "npm test && npm run build && node scripts/verify-scaffold.mjs --shape-only && node scripts/verify-auth.mjs && node scripts/verify-ws.mjs && node scripts/verify-board-play.mjs && node scripts/verify-play-ui.mjs && node scripts/verify-readme.mjs",
     "build:wasm": "wasm-pack build --target web --out-dir ../../src/chess/pkg --release --manifest-path crates/corvin-play-wasm/Cargo.toml && node scripts/strip-pkg-gitignore.mjs"
   },
   "dependencies": {

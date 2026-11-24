@@ -5,8 +5,13 @@
 
 import { SeqTracker } from "./seq"
 import type {
+  AckMessage,
+  ClockSyncMessage,
+  GameEndMessage,
   GameEventPayload,
   GameSnapshotMessage,
+  GameStartMessage,
+  MoveRejectedMessage,
   ResumeTarget,
   WelcomeMessage,
   WsStatus,
@@ -37,6 +42,11 @@ type EventMap = {
   welcome: WelcomeMessage
   gameEvent: GameEventPayload
   snapshot: GameSnapshotMessage
+  gameStart: GameStartMessage
+  gameEnd: GameEndMessage
+  ack: AckMessage
+  clockSync: ClockSyncMessage
+  moveRejected: MoveRejectedMessage
   gameGone: { code: string; message: string }
   status: WsStatus
   error: { code: string; message: string }
@@ -153,6 +163,11 @@ export class WsClient {
     this.teardownSocket()
   }
 
+  /** Send a PROTOCOL client message (QuickPair, Move, offers, …). */
+  send(body: Record<string, unknown>) {
+    this.sendJson({ ...body, v: PROTOCOL_V })
+  }
+
   private replaceSocket() {
     // Drop any prior socket without treating its close as a reconnect signal.
     if (this.socket) {
@@ -266,6 +281,21 @@ export class WsClient {
       case "Replay":
         this.handleReplay(value)
         break
+      case "GameStart":
+        this.handleGameStart(value)
+        break
+      case "Ack":
+        this.handleAck(value)
+        break
+      case "ClockSync":
+        this.handleClockSync(value)
+        break
+      case "MoveRejected":
+        this.handleMoveRejected(value)
+        break
+      case "GameEnd":
+        this.handleGameEnd(value)
+        break
       case "Error":
         this.handleError(value)
         break
@@ -273,6 +303,145 @@ export class WsClient {
         this.handleSequenced(value)
         break
     }
+  }
+
+  private handleGameStart(value: Record<string, unknown>) {
+    const gameId = value.game_id
+    const color = value.color
+    const config = value.config
+    const opponents = value.opponents
+    const startClocks = value.start_clocks
+    if (
+      typeof gameId !== "string" ||
+      (color !== "w" && color !== "b") ||
+      !config ||
+      typeof config !== "object" ||
+      !opponents ||
+      typeof opponents !== "object" ||
+      !startClocks ||
+      typeof startClocks !== "object"
+    ) {
+      return
+    }
+    const cfg = config as Record<string, unknown>
+    const opp = opponents as {
+      w?: { id?: unknown }
+      b?: { id?: unknown }
+    }
+    const clocks = startClocks as { w?: unknown; b?: unknown }
+    if (
+      typeof cfg.time_class !== "string" ||
+      typeof cfg.initial_ms !== "number" ||
+      typeof cfg.increment_ms !== "number" ||
+      typeof cfg.rated !== "boolean" ||
+      typeof opp.w?.id !== "string" ||
+      typeof opp.b?.id !== "string" ||
+      typeof clocks.w !== "number" ||
+      typeof clocks.b !== "number"
+    ) {
+      return
+    }
+    const msg: GameStartMessage = {
+      typ: "GameStart",
+      v: typeof value.v === "number" ? value.v : PROTOCOL_V,
+      game_id: gameId,
+      color,
+      config: {
+        time_class: cfg.time_class,
+        initial_ms: cfg.initial_ms,
+        increment_ms: cfg.increment_ms,
+        rated: cfg.rated,
+      },
+      opponents: { w: { id: opp.w.id }, b: { id: opp.b.id } },
+      start_clocks: { w: clocks.w, b: clocks.b },
+    }
+    this.emit("gameStart", msg)
+  }
+
+  private handleAck(value: Record<string, unknown>) {
+    const msg: AckMessage = {
+      typ: "Ack",
+      v: typeof value.v === "number" ? value.v : PROTOCOL_V,
+    }
+    if (typeof value.id === "string") msg.id = value.id
+    if (typeof value.seq === "number") msg.seq = value.seq
+    this.emit("ack", msg)
+  }
+
+  private handleClockSync(value: Record<string, unknown>) {
+    const gameId = value.game_id
+    const clocks = value.clocks
+    const active = value.active
+    const serverTime = value.server_time
+    if (
+      typeof gameId !== "string" ||
+      !clocks ||
+      typeof clocks !== "object" ||
+      (active !== "w" && active !== "b") ||
+      typeof serverTime !== "number"
+    ) {
+      return
+    }
+    const clockObj = clocks as { w?: unknown; b?: unknown }
+    if (typeof clockObj.w !== "number" || typeof clockObj.b !== "number") return
+    const msg: ClockSyncMessage = {
+      typ: "ClockSync",
+      v: typeof value.v === "number" ? value.v : PROTOCOL_V,
+      game_id: gameId,
+      clocks: { w: clockObj.w, b: clockObj.b },
+      active,
+      server_time: serverTime,
+    }
+    this.emit("clockSync", msg)
+  }
+
+  private handleMoveRejected(value: Record<string, unknown>) {
+    const id = typeof value.id === "string" ? value.id : ""
+    const code = typeof value.code === "string" ? value.code : "INTERNAL"
+    const message = typeof value.message === "string" ? value.message : ""
+    this.emit("moveRejected", {
+      typ: "MoveRejected",
+      v: typeof value.v === "number" ? value.v : PROTOCOL_V,
+      id,
+      code,
+      message,
+    })
+  }
+
+  private handleGameEnd(value: Record<string, unknown>) {
+    const gameId = value.game_id
+    const result = value.result
+    const reason = value.reason
+    if (
+      typeof gameId !== "string" ||
+      typeof result !== "string" ||
+      typeof reason !== "string"
+    ) {
+      return
+    }
+    // GameEnd may also carry seq; feed the sequencer when present, then emit UI event.
+    if (typeof value.seq === "number") {
+      this.seq.ingest(value.seq, value)
+    }
+    const msg: GameEndMessage = {
+      typ: "GameEnd",
+      v: typeof value.v === "number" ? value.v : PROTOCOL_V,
+      game_id: gameId,
+      result,
+      reason,
+    }
+    if (value.winner === "w" || value.winner === "b") msg.winner = value.winner
+    else if (value.winner === null) msg.winner = null
+    if (typeof value.seq === "number") msg.seq = value.seq
+    const diff = value.rating_diff
+    if (diff && typeof diff === "object") {
+      const d = diff as { w?: unknown; b?: unknown }
+      if (typeof d.w === "number" && typeof d.b === "number") {
+        msg.rating_diff = { w: d.w, b: d.b }
+      }
+    }
+    if (typeof value.flagged === "string") msg.flagged = value.flagged
+    this.emit("gameEnd", msg)
   }
 
   private handleWelcome(value: Record<string, unknown>) {

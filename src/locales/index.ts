@@ -2,9 +2,12 @@ import enAuth from "./en/auth.json"
 import itAuth from "./it/auth.json"
 import enPlay from "./en/play.json"
 import itPlay from "./it/play.json"
+import enPlayShell from "./en/play-shell.json"
+import itPlayShell from "./it/play-shell.json"
 
 export type AuthLocale = typeof enAuth
 export type PlayLocale = typeof enPlay
+export type PlayShellLocale = typeof enPlayShell
 export type LocaleCode = "en" | "it"
 
 const authCatalogs: Record<LocaleCode, AuthLocale> = {
@@ -15,6 +18,11 @@ const authCatalogs: Record<LocaleCode, AuthLocale> = {
 const playCatalogs: Record<LocaleCode, PlayLocale> = {
   en: enPlay,
   it: itPlay,
+}
+
+const playShellCatalogs: Record<LocaleCode, PlayShellLocale> = {
+  en: enPlayShell,
+  it: itPlayShell,
 }
 
 export const DEFAULT_LOCALE: LocaleCode = "en"
@@ -28,6 +36,9 @@ export const resolveLocale = (raw: string | null | undefined): LocaleCode => {
 export const getAuthStrings = (locale: LocaleCode): AuthLocale => authCatalogs[locale]
 
 export const getPlayStrings = (locale: LocaleCode): PlayLocale => playCatalogs[locale]
+
+export const getPlayShellStrings = (locale: LocaleCode): PlayShellLocale =>
+  playShellCatalogs[locale]
 
 export const formatLocaleString = (
   template: string,

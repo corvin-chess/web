@@ -78,3 +78,55 @@ export type ResumeTarget = {
 export type WsStatus = "idle" | "connecting" | "ready" | "reconnecting" | "closed"
 
 export type GameEventPayload = ReplayEvent & { seq: number }
+
+export type GameStartMessage = {
+  typ: "GameStart"
+  v: number
+  game_id: string
+  color: "w" | "b"
+  config: {
+    time_class: string
+    initial_ms: number
+    increment_ms: number
+    rated: boolean
+  }
+  opponents: { w: { id: string }; b: { id: string } }
+  start_clocks: { w: number; b: number }
+}
+
+export type AckMessage = {
+  typ: "Ack"
+  v: number
+  id?: string
+  seq?: number
+}
+
+export type ClockSyncMessage = {
+  typ: "ClockSync"
+  v: number
+  game_id: string
+  clocks: { w: number; b: number }
+  active: "w" | "b"
+  server_time: number
+  lag?: { you_ms: number; opp_ms: number; server_ms: number }
+}
+
+export type MoveRejectedMessage = {
+  typ: "MoveRejected"
+  v: number
+  id: string
+  code: string
+  message: string
+}
+
+export type GameEndMessage = {
+  typ: "GameEnd"
+  v: number
+  game_id: string
+  result: string
+  reason: string
+  winner?: string | null
+  seq?: number
+  rating_diff?: { w: number; b: number }
+  flagged?: string
+}

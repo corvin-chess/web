@@ -150,6 +150,7 @@ if (!statusTableMatch) {
   let sawReadmeBuilt = false
   let sawScaffoldBuilt = false
   let sawAuthBuilt = false
+  let sawWsBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -169,6 +170,9 @@ if (!statusTableMatch) {
     if (/^Auth UI$/i.test(area) && /^Built$/i.test(state)) {
       sawAuthBuilt = true
     }
+    if (/^WS client$/i.test(area) && /^Built$/i.test(state)) {
+      sawWsBuilt = true
+    }
     if (
       /^(Play UI|Analysis UI|Implementation)$/i.test(area) &&
       !/^Planned$/i.test(state)
@@ -182,6 +186,7 @@ if (!statusTableMatch) {
   if (!sawReadmeBuilt) fail('STATUS must include "| README | Built |"')
   if (!sawScaffoldBuilt) fail('STATUS must include "| Application scaffold | Built |"')
   if (!sawAuthBuilt) fail('STATUS must include "| Auth UI | Built |"')
+  if (!sawWsBuilt) fail('STATUS must include "| WS client | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }

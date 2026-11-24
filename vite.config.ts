@@ -12,6 +12,12 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      // PROTOCOL WebSocket path (CV-192); upgrade to local server.
+      "/ws": {
+        target: apiTarget,
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
   test: {

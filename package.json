@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "verify": "npm test && npm run build && node scripts/verify-scaffold.mjs --shape-only && node scripts/verify-auth.mjs && node scripts/verify-readme.mjs"
+    "verify": "npm test && npm run build && node scripts/verify-scaffold.mjs --shape-only && node scripts/verify-auth.mjs && node scripts/verify-ws.mjs && node scripts/verify-readme.mjs"
   },
   "dependencies": {
     "@corvin-chess/design-system": "git+https://github.com/corvin-chess/design-system.git#69d7c6ce4079891cfc82925218e18db09ee42463",

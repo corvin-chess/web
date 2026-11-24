@@ -1,0 +1,43 @@
+{
+  "name": "@corvin-chess/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Corvin play site — Vite React client",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "verify": "npm test && npm run build && node scripts/verify-scaffold.mjs --shape-only && node scripts/verify-readme.mjs"
+  },
+  "dependencies": {
+    "@corvin-chess/design-system": "git+https://github.com/corvin-chess/design-system.git#69d7c6ce4079891cfc82925218e18db09ee42463",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/corvin-chess/web.git"
+  },
+  "homepage": "https://github.com/corvin-chess/web",
+  "bugs": {
+    "url": "https://github.com/corvin-chess/web/issues"
+  }
+}

@@ -148,6 +148,7 @@ if (!statusTableMatch) {
   const table = statusTableMatch[0]
   const stateCells = [...table.matchAll(/\|\s*([^|\n]+)\s*\|\s*([^|\n]+)\s*\|/g)]
   let sawReadmeBuilt = false
+  let sawScaffoldBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -161,8 +162,11 @@ if (!statusTableMatch) {
     if (/^README$/i.test(area) && /^Built$/i.test(state)) {
       sawReadmeBuilt = true
     }
+    if (/^Application scaffold$/i.test(area) && /^Built$/i.test(state)) {
+      sawScaffoldBuilt = true
+    }
     if (
-      /^(Application scaffold|Play UI|Analysis UI|Auth UI|Implementation)$/i.test(area) &&
+      /^(Play UI|Analysis UI|Auth UI|Implementation)$/i.test(area) &&
       !/^Planned$/i.test(state)
     ) {
       fail(`STATUS row "${area}" must stay Planned until code exists; got "${state}"`)
@@ -172,6 +176,7 @@ if (!statusTableMatch) {
     }
   }
   if (!sawReadmeBuilt) fail('STATUS must include "| README | Built |"')
+  if (!sawScaffoldBuilt) fail('STATUS must include "| Application scaffold | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }
@@ -183,10 +188,10 @@ if (claimedBuilt.test(readme)) {
   ok("no unverified strength/production claims")
 }
 
-// Body must not claim implementation exists
-const forbiddenImpl = /\b(npm run|pnpm|yarn|cargo |docker compose up)\b/i
-if (forbiddenImpl.test(readme) && !/Planned/i.test(readme)) {
-  fail("run commands present without Planned framing")
+// Unverified production claims only; scaffold may document real npm scripts (CV-190).
+const claimedLive = /\b(users online|ELO|nps\s*=|Live at https?:)/i
+if (claimedLive.test(readme)) {
+  fail("unverified live/production claims found")
 }
 
 const linkRe = /https:\/\/github\.com\/corvin-chess\/([A-Za-z0-9._-]+)/g

@@ -58,7 +58,15 @@
     "gameGone": "Game no longer available",
     "spectating": "Spectating",
     "moveAnnounced": "{san}",
-    "ratingDiff": "Rating {diff}"
+    "ratingDiff": "Rating {diff}",
+    "premoveSet": "Premove {uci}",
+    "premoveCleared": "Premove cleared",
+    "premoveIllegal": "Premove no longer legal",
+    "confirmMove": "Confirm move {uci}",
+    "confirmMoveAction": "Confirm move",
+    "cancelConfirm": "Cancel",
+    "confirmMovesToggle": "Confirm moves",
+    "clearPremove": "Clear premove"
   },
   "offers": {
     "drawOffer": "Offer draw",

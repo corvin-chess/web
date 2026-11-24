@@ -58,7 +58,15 @@
     "gameGone": "Partita non più disponibile",
     "spectating": "Stai osservando",
     "moveAnnounced": "{san}",
-    "ratingDiff": "Variazione rating {diff}"
+    "ratingDiff": "Variazione rating {diff}",
+    "premoveSet": "Premossa {uci}",
+    "premoveCleared": "Premossa annullata",
+    "premoveIllegal": "Premossa non più legale",
+    "confirmMove": "Conferma mossa {uci}",
+    "confirmMoveAction": "Conferma mossa",
+    "cancelConfirm": "Annulla",
+    "confirmMovesToggle": "Conferma mosse",
+    "clearPremove": "Annulla premossa"
   },
   "offers": {
     "drawOffer": "Offri patta",

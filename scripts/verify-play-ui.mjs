@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CV-194: assert quick-pair play UI wiring (lobby, clocks, offers, locales).
+ * CV-194 / CV-195: assert quick-pair play UI + premove/confirm wiring.
  */
 import { existsSync, readFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
@@ -23,8 +23,15 @@ const required = [
   "src/play/onlineSession.ts",
   "src/play/clockDisplay.ts",
   "src/play/useOnlinePlay.ts",
+  "src/play/premove.ts",
+  "src/play/premoveGeometry.ts",
+  "src/play/playPrefs.ts",
   "src/play/onlineSession.test.ts",
   "src/play/clockDisplay.test.ts",
+  "src/play/premove.test.ts",
+  "src/play/premoveGeometry.test.ts",
+  "src/play/playPrefs.test.ts",
+  "src/play/premoveSubmit.test.ts",
   "src/locales/en/play-shell.json",
   "src/locales/it/play-shell.json",
 ]
@@ -45,6 +52,23 @@ if (!onlineHook.includes("QuickPair") || !onlineHook.includes("OfferDraw")) {
   fail("useOnlinePlay must send QuickPair and OfferDraw")
 } else {
   ok("useOnlinePlay sends QuickPair + offers")
+}
+if (!onlineHook.includes("premoved")) {
+  fail("useOnlinePlay must send Move.premoved for premoves")
+} else {
+  ok("useOnlinePlay sends Move.premoved")
+}
+
+const playBoard = readFileSync(join(root, "src/play/PlayBoard.tsx"), "utf8")
+for (const token of ["allowPremove", "confirmMoves", "geometricPremoveDests"]) {
+  if (!playBoard.includes(token)) fail(`PlayBoard missing ${token}`)
+}
+if (!process.exitCode) ok("PlayBoard premove + confirm wiring present")
+
+if (!playPage.includes("resolvePendingPremove") || !playPage.includes("premoved")) {
+  fail("PlayPage must resolve and fire premoved moves")
+} else {
+  ok("PlayPage auto-fires legal premoves")
 }
 
 const client = readFileSync(join(root, "src/ws/client.ts"), "utf8")
@@ -83,12 +107,14 @@ for (const need of [
   "lobby.waiting",
   "game.resign",
   "game.clock",
+  "game.premoveSet",
+  "game.confirmMovesToggle",
   "offers.drawOffer",
   "offers.accept",
 ]) {
   if (!enKeys.includes(need)) fail(`missing required key ${need}`)
 }
-if (!process.exitCode) ok("required lobby/game/offers keys present")
+if (!process.exitCode) ok("required lobby/game/offers/premove keys present")
 
 const emojiRe = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u
 const blobs = [

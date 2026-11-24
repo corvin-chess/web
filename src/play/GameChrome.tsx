@@ -11,6 +11,10 @@ import { isMyTurn, type OnlineSessionState } from "./onlineSession"
 type GameChromeProps = {
   strings: PlayShellLocale
   session: OnlineSessionState
+  confirmMoves: boolean
+  onConfirmMovesChange: (value: boolean) => void
+  hasPremove: boolean
+  onClearPremove: () => void
   onOfferDraw: () => void
   onOfferTakeback: () => void
   onRespond: (offer: "draw" | "takeback", accept: boolean) => void
@@ -51,6 +55,10 @@ const endMessage = (
 export const GameChrome = ({
   strings,
   session,
+  confirmMoves,
+  onConfirmMovesChange,
+  hasPremove,
+  onClearPremove,
   onOfferDraw,
   onOfferTakeback,
   onRespond,
@@ -168,6 +176,19 @@ export const GameChrome = ({
       ) : null}
       {session.phase === "playing" ? (
         <div className="game-actions">
+          <label className="game-pref">
+            <input
+              type="checkbox"
+              checked={confirmMoves}
+              onChange={(e) => onConfirmMovesChange(e.target.checked)}
+            />
+            {g.confirmMovesToggle}
+          </label>
+          {hasPremove ? (
+            <button type="button" onClick={onClearPremove}>
+              {g.clearPremove}
+            </button>
+          ) : null}
           <button type="button" onClick={onOfferDraw} disabled={Boolean(pending)}>
             {o.drawOffer}
           </button>

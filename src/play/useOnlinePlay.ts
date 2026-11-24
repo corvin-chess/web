@@ -245,17 +245,23 @@ export const useOnlinePlay = ({
     dispatch({ typ: "QuickPairCancel" })
   }, [dispatch])
 
-  const submitMove = useCallback((uci: string) => {
-    const client = clientRef.current
-    const gameId = gameIdRef.current
-    if (!client || !gameId) return
-    client.send({
-      typ: "Move",
-      id: nextMoveId(),
-      game_id: gameId,
-      uci,
-    })
-  }, [])
+  const submitMove = useCallback(
+    (uci: string, meta?: { premoved?: boolean }) => {
+      const client = clientRef.current
+      const gameId = gameIdRef.current
+      if (!client || !gameId) return
+      const body: Record<string, unknown> = {
+        typ: "Move",
+        id: nextMoveId(),
+        game_id: gameId,
+        uci,
+      }
+      // PROTOCOL optional flag; server may use for zero think-time (ADR-005).
+      if (meta?.premoved) body.premoved = true
+      client.send(body)
+    },
+    []
+  )
 
   const offerDraw = useCallback(() => {
     const gameId = gameIdRef.current

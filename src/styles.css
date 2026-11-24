@@ -286,6 +286,38 @@ body {
   box-sizing: border-box;
 }
 
+/* Premove intent (gold, sparingly — DESIGN.md accent). */
+.corvin-sq--premove::before,
+.corvin-sq--premove-dest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.corvin-sq--confirm {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.play-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.game-pref {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
 .auth-shell {
   min-height: 100%;
   max-width: 28rem;

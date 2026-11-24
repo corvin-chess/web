@@ -16,6 +16,7 @@ import {
   resolveLocale,
   type LocaleCode,
 } from "../locales"
+import { formatMoveAnnouncement, sanForUci } from "./announceSan"
 import { geometricPremoveDests } from "./premoveGeometry"
 import { pendingFromSquares, type PendingPremove } from "./premove"
 
@@ -116,11 +117,14 @@ const syncOverlays = (
 
 const statusFor = (
   locale: LocaleCode,
-  next: ReturnType<ReturnType<typeof createLocalPlayController>["getState"]>
+  next: ReturnType<ReturnType<typeof createLocalPlayController>["getState"]>,
+  rules: ChessRules,
+  fenBeforeMove: string
 ): string => {
   const strings = getPlayStrings(locale)
   if (next.didMove && next.lastUci) {
-    return formatLocaleString(strings.played, { uci: next.lastUci })
+    const san = sanForUci(rules.toSan, fenBeforeMove, next.lastUci)
+    return formatLocaleString(strings.played, { san })
   }
   if (next.selected) {
     return formatLocaleString(strings.selected, {
@@ -225,12 +229,10 @@ export const PlayBoard = ({
               if (awaitingRef.current === null) return
               awaitingRef.current = null
               setAwaitingConfirm(null)
+              // Online: GameChrome aria-live announces server SAN; keep status quiet.
               submitRef.current?.(awaiting.uci)
               playRef.current.reset(fenRef.current)
               paint(null, [], pendingRef.current, null)
-              const msg = formatLocaleString(strings.played, { uci: awaiting.uci })
-              setStatus(msg)
-              announce?.(msg)
               return
             }
             setAwaitingConfirm(null)
@@ -266,17 +268,13 @@ export const PlayBoard = ({
                   return
                 }
                 paint(null, [], pendingRef.current, null)
+                // Server MoveApplied drives the persistent SAN live region.
                 submitRef.current?.(next.lastUci)
-                const msg = formatLocaleString(strings.played, {
-                  uci: next.lastUci,
-                })
-                setStatus(msg)
-                announce?.(msg)
                 return
               }
               paint(next.selected, next.legalDests, pendingRef.current, null)
               handle.element.querySelector<HTMLElement>(".corvin-board")?.focus()
-              const msg = statusFor(locale, next)
+              const msg = statusFor(locale, next, rules, prev.fen)
               setStatus(msg)
               announce?.(msg)
               return
@@ -286,9 +284,16 @@ export const PlayBoard = ({
             }
             paint(next.selected, next.legalDests, null, null)
             handle.element.querySelector<HTMLElement>(".corvin-board")?.focus()
-            const msg = statusFor(locale, next)
+            const msg = statusFor(locale, next, rules, prev.fen)
             setStatus(msg)
-            announce?.(msg)
+            if (next.didMove && next.lastUci) {
+              const san = sanForUci(rules.toSan, prev.fen, next.lastUci)
+              announce?.(
+                formatMoveAnnouncement(shell.game.moveAnnounced, san)
+              )
+            } else {
+              announce?.(msg)
+            }
             return
           }
 
@@ -391,7 +396,43 @@ export const PlayBoard = ({
       awaitingRef.current
     )
 
+    // Escape clears selection / confirm / premove (DESIGN keyboard path).
+    // Listen on the section so Confirm/Cancel buttons also clear.
+    const sectionEl = (host.closest(".play-board") ?? host) as HTMLElement
+    const handleEscape = (event: Event) => {
+      const ke = event as KeyboardEvent
+      if (ke.key !== "Escape") return
+      ke.preventDefault()
+      let cleared = false
+      if (awaitingRef.current) {
+        awaitingRef.current = null
+        setAwaitingConfirm(null)
+        cleared = true
+      }
+      if (premoveFromRef.current) {
+        premoveFromRef.current = null
+        premoveDestsRef.current = []
+        cleared = true
+      }
+      if (pendingRef.current) {
+        onPremoveChangeRef.current?.(null)
+        cleared = true
+      }
+      const state = playRef.current.getState()
+      if (state.selected) {
+        playRef.current.reset(fenRef.current)
+        cleared = true
+      }
+      if (!cleared) return
+      paint(null, [], null, null)
+      setStatus(strings.selectPiece)
+      announce?.(strings.selectPiece)
+      handle.element.querySelector<HTMLElement>(".corvin-board")?.focus()
+    }
+    sectionEl.addEventListener("keydown", handleEscape)
+
     return () => {
+      sectionEl.removeEventListener("keydown", handleEscape)
       handle.destroy()
       boardRef.current = null
     }
@@ -422,7 +463,12 @@ export const PlayBoard = ({
   return (
     <section className="play-board" aria-label={ariaLabel}>
       <div className="play-board-host" ref={hostRef} />
-      <p className="play-board-status" role="status" aria-live="polite">
+      <p
+        className="play-board-status"
+        role="status"
+        // Online SAN is GameChrome-only; local keeps polite status for selection + SAN.
+        aria-live={onSubmitMove ? "off" : "polite"}
+      >
         {status}
       </p>
       {awaitingConfirm ? (
@@ -439,11 +485,6 @@ export const PlayBoard = ({
               submitRef.current?.(pending.uci)
               playRef.current.reset(fenRef.current)
               paint(null, [], pendingRef.current, null)
-              const msg = formatLocaleString(getPlayStrings(locale).played, {
-                uci: pending.uci,
-              })
-              setStatus(msg)
-              announce?.(msg)
             }}
           >
             {getPlayShellStrings(locale).game.confirmMoveAction}

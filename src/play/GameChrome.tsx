@@ -67,6 +67,7 @@ export const GameChrome = ({
   onBackToLobby,
 }: GameChromeProps) => {
   const [now, setNow] = useState(() => Date.now())
+  const [liveSan, setLiveSan] = useState("\u00a0")
   const g = strings.game
   const o = strings.offers
 
@@ -75,6 +76,20 @@ export const GameChrome = ({
     const id = window.setInterval(() => setNow(Date.now()), 200)
     return () => window.clearInterval(id)
   }, [session.phase, session.clocks])
+
+  // Pulse on each ply (lastSeq) so identical consecutive SAN still announces.
+  useEffect(() => {
+    const san = session.lastSan
+    if (!san) {
+      setLiveSan("\u00a0")
+      return
+    }
+    setLiveSan("\u00a0")
+    const id = window.setTimeout(() => {
+      setLiveSan(formatLocaleString(g.moveAnnounced, { san }))
+    }, 0)
+    return () => window.clearTimeout(id)
+  }, [session.lastSeq, session.lastSan, g.moveAnnounced])
 
   const clocks = session.clocks
   const whiteMs = clocks ? displayRemainingMs(clocks, "w", now) : 0
@@ -130,11 +145,14 @@ export const GameChrome = ({
             ? g.yourTurn
             : g.opponentTurn}
       </p>
-      {session.lastSan ? (
-        <p className="game-san" aria-live="polite">
-          {formatLocaleString(g.moveAnnounced, { san: session.lastSan })}
-        </p>
-      ) : null}
+      <p
+        className="game-san"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="move-live"
+      >
+        {liveSan}
+      </p>
       {session.lastError ? (
         <p className="game-error" role="alert">
           {session.lastError === "ILLEGAL_MOVE"

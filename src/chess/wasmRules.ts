@@ -5,6 +5,7 @@ type WasmExports = {
   default: (module_or_path?: InitInput) => Promise<unknown>
   legalMoves: (fen: string) => string[]
   applyMove: (fen: string, uci: string) => string
+  toSan: (fen: string, uci: string) => string
 }
 
 type InitInput =
@@ -30,6 +31,7 @@ export const loadWasmRules = async (): Promise<ChessRules> => {
         return {
           legalMoves: (fen: string) => Array.from(mod.legalMoves(fen)),
           applyMove: (fen: string, uci: string) => mod.applyMove(fen, uci),
+          toSan: (fen: string, uci: string) => mod.toSan(fen, uci),
         }
       } catch (err) {
         rulesPromise = null

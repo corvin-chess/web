@@ -3,6 +3,6 @@
   "loadError": "Could not load chess rules.",
   "selectPiece": "Select a piece to see legal moves.",
   "selected": "Selected {square}. Legal destinations: {count}.",
-  "played": "Played {uci}",
+  "played": "Played {san}",
   "moveFailed": "Could not apply that move."
 }

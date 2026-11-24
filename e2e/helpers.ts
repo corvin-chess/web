@@ -40,18 +40,36 @@ export const pickLobby = async (
   page: Page,
   opts: { rated: boolean; color: "White" | "Black" }
 ) => {
-  await page.getByRole("button", { name: "Blitz" }).click()
-  await page.getByRole("button", { name: opts.rated ? "Rated" : "Casual" }).click()
-  await page.getByRole("button", { name: opts.color }).click()
+  const blitz = page.getByRole("button", { name: "Blitz" })
+  await blitz.click()
+  await expect(blitz).toHaveAttribute("aria-pressed", "true")
+  const ratedBtn = page.getByRole("button", {
+    name: opts.rated ? "Rated" : "Casual",
+  })
+  await ratedBtn.click()
+  await expect(ratedBtn).toHaveAttribute("aria-pressed", "true")
+  const colorBtn = page.getByRole("button", { name: opts.color })
+  await colorBtn.click()
+  await expect(colorBtn).toHaveAttribute("aria-pressed", "true")
 }
 
 export const clickSquare = async (page: Page, algebraic: string) => {
   await page.locator(`[data-square="${algebraic}"]`).click()
 }
 
-export const playUci = async (page: Page, from: string, to: string) => {
+export const playUci = async (
+  page: Page,
+  from: string,
+  to: string,
+  expectedSan?: string
+) => {
   await clickSquare(page, from)
   await clickSquare(page, to)
+  if (expectedSan) {
+    await expect(page.getByTestId("move-live")).toContainText(expectedSan, {
+      timeout: 15_000,
+    })
+  }
 }
 
 export const waitPlaying = async (page: Page) => {

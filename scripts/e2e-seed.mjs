@@ -11,6 +11,16 @@ if (!databaseUrl) {
   process.exit(1)
 }
 
+const env = (process.env.CORVIN_ENV ?? "").trim().toLowerCase()
+const allowSeed =
+  process.env.CORVIN_E2E_SEED === "1" || env === "test" || env === "development"
+if (!allowSeed) {
+  console.error(
+    "FAIL: refuse seed unless CORVIN_ENV is test/development or CORVIN_E2E_SEED=1"
+  )
+  process.exit(1)
+}
+
 const PLAYER_A = {
   userId: "01HZXK0CV197AAA00000000001",
   username: "E2eWhite",

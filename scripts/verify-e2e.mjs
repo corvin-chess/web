@@ -47,7 +47,8 @@ for (const needle of [
   "Resign",
   "Rating",
   "CORVIN_E2E",
-  'playUci(pageA, "e2", "e4")',
+  'playUci(pageA, "e2", "e4", "e4")',
+  "resetStack",
 ]) {
   if (!spec.includes(needle)) fail(`spec missing: ${needle}`)
 }
@@ -72,6 +73,30 @@ if (!/CORVIN_E2E|test:e2e|playwright/i.test(ci)) {
   fail("ci.yml must invoke Playwright e2e")
 } else {
   ok("ci.yml references Playwright e2e")
+}
+if (!ci.includes("postgresql-client")) {
+  fail("ci.yml must install postgresql-client for e2e-seed")
+} else {
+  ok("ci.yml installs postgresql-client")
+}
+if (!ci.includes("redis-tools")) {
+  fail("ci.yml must install redis-tools for FLUSHDB between tests")
+} else {
+  ok("ci.yml installs redis-tools")
+}
+
+const pw = readFileSync(join(root, "playwright.config.ts"), "utf8")
+if (!pw.includes("CI requires CORVIN_E2E=1")) {
+  fail("playwright.config must fail CI when CORVIN_E2E unset")
+} else {
+  ok("playwright.config guards CORVIN_E2E in CI")
+}
+
+const seedSrc = readFileSync(join(root, "scripts/e2e-seed.mjs"), "utf8")
+if (!seedSrc.includes("CORVIN_E2E_SEED") || !seedSrc.includes("refuse seed")) {
+  fail("e2e-seed must refuse non-test environments")
+} else {
+  ok("e2e-seed env guard present")
 }
 
 if (!process.exitCode) {

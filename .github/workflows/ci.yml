@@ -70,6 +70,8 @@ jobs:
           cache: npm
       - name: Install web
         run: npm ci
+      - name: Install psql + redis-cli
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client redis-tools
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Build server
@@ -79,6 +81,8 @@ jobs:
         working-directory: _server
         run: ./target/release/corvin-server migrate up
       - name: Seed e2e sessions
+        env:
+          CORVIN_E2E_SEED: "1"
         run: node scripts/e2e-seed.mjs
       - name: Start server
         working-directory: _server

@@ -2,6 +2,11 @@ import { defineConfig, devices } from "@playwright/test"
 
 const origin = process.env.CORVIN_E2E_ORIGIN ?? "http://127.0.0.1:5173"
 
+// CI must not exit 0 with every e2e test skipped.
+if (process.env.CI && process.env.CORVIN_E2E !== "1") {
+  throw new Error("CI requires CORVIN_E2E=1 for Playwright two-browser games")
+}
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,

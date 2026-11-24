@@ -14,14 +14,23 @@ import { GameChrome } from "./GameChrome"
 import { LobbyPanel } from "./LobbyPanel"
 import { LocalBoard } from "./LocalBoard"
 import { PlayBoard } from "./PlayBoard"
-import { loadPlayPrefs, savePlayPrefs } from "./playPrefs"
+import { PrefsControls } from "./PrefsControls"
+import {
+  loadPlayPrefs,
+  savePlayPrefs,
+  type PlayPrefs,
+} from "./playPrefs"
 import { resolvePendingPremove, type PendingPremove } from "./premove"
 import { isMyTurn } from "./onlineSession"
+import { soundEventFromSan } from "./soundEvent"
+import { playSound, unlockSoundPlayer } from "./soundPlayer"
+import { applyTheme } from "./theme"
 import { useOnlinePlay } from "./useOnlinePlay"
 
 /**
  * Play shell: lobby quick-pair + online clocks/offers when signed in (CV-194);
- * premoves + optional confirm (CV-195); local WASM board for practice.
+ * premoves + optional confirm (CV-195); theme/sound prefs (CV-198);
+ * local WASM board for practice.
  */
 export const PlayPage = () => {
   const { session: authSession, loading } = useAuth()
@@ -36,18 +45,24 @@ export const PlayPage = () => {
   const [pendingPremove, setPendingPremove] = useState<PendingPremove | null>(
     null
   )
-  const [confirmMoves, setConfirmMoves] = useState(
-    () => loadPlayPrefs().confirmMoves
-  )
+  const [prefs, setPrefs] = useState<PlayPrefs>(() => loadPlayPrefs())
   const [premoveNotice, setPremoveNotice] = useState<string | null>(null)
   /** Guard Strict Mode double-fire for the same ply. */
   const premoveFiredSeqRef = useRef<number>(-1)
+  /** `${seq}:${san}` of last move SFX; skips offer/end seq bumps that keep SAN. */
+  const lastMoveSoundKeyRef = useRef<string>("")
+  const lastOfferKeyRef = useRef<string | null>(null)
+  const lastEndGameRef = useRef<string | null>(null)
 
   const online = useOnlinePlay({
     enabled: Boolean(authSession),
     locale,
     playerToken: authSession?.userId ?? null,
   })
+
+  useEffect(() => {
+    applyTheme(prefs.theme)
+  }, [prefs.theme])
 
   useEffect(() => {
     let cancelled = false
@@ -107,15 +122,54 @@ export const PlayPage = () => {
     shell.game.premoveIllegal,
   ])
 
+  // Online move SFX: only when MoveApplied pairs a new seq with a new SAN.
+  useEffect(() => {
+    const seq = online.session.lastSeq
+    const san = online.session.lastSan
+    if (!san || seq <= 0) return
+    const key = `${seq}:${san}`
+    if (key === lastMoveSoundKeyRef.current) return
+    const prev = lastMoveSoundKeyRef.current
+    const prevSan = prev.includes(":") ? prev.slice(prev.indexOf(":") + 1) : ""
+    lastMoveSoundKeyRef.current = key
+    // OfferState / GameEnd bump seq while keeping lastSan — do not replay move SFX.
+    if (prev && san === prevSan) return
+    playSound(soundEventFromSan(san), prefs)
+  }, [online.session.lastSeq, online.session.lastSan, prefs])
+
+  useEffect(() => {
+    const pending = online.session.pendingOffer
+    if (!pending || pending.status !== "offered") return
+    const key = `${online.session.gameId}:${pending.offer}:${pending.by}`
+    if (key === lastOfferKeyRef.current) return
+    lastOfferKeyRef.current = key
+    playSound("offer", prefs)
+  }, [online.session.pendingOffer, online.session.gameId, prefs])
+
+  useEffect(() => {
+    if (online.session.phase !== "ended" || !online.session.gameId) return
+    if (lastEndGameRef.current === online.session.gameId) return
+    lastEndGameRef.current = online.session.gameId
+    playSound("game-end", prefs)
+  }, [online.session.phase, online.session.gameId, prefs])
+
+  const handlePrefsChange = (next: PlayPrefs) => {
+    setPrefs(next)
+    savePlayPrefs(next)
+    applyTheme(next.theme)
+  }
+
   const handleConfirmMovesChange = (value: boolean) => {
-    setConfirmMoves(value)
-    savePlayPrefs({ confirmMoves: value })
+    const next = { ...prefs, confirmMoves: value }
+    setPrefs(next)
+    savePlayPrefs(next)
   }
 
   const handleSubmitMove = (
     uci: string,
     meta?: { premoved?: boolean }
   ) => {
+    unlockSoundPlayer()
     // Any live send cancels a leftover pending premove.
     if (!meta?.premoved) setPendingPremove(null)
     online.submitMove(uci, meta)
@@ -154,6 +208,12 @@ export const PlayPage = () => {
         )}
       </nav>
 
+      <PrefsControls
+        strings={shell.prefs}
+        prefs={prefs}
+        onChange={handlePrefsChange}
+      />
+
       {loadError ? (
         <p className="play-board-error" role="alert">
           {loadError}
@@ -184,14 +244,14 @@ export const PlayPage = () => {
                   : shell.game.premoveCleared
               )
             }}
-            confirmMoves={confirmMoves}
+            confirmMoves={prefs.confirmMoves}
             onSubmitMove={handleSubmitMove}
             ariaLabel="Online board"
           />
           <GameChrome
             strings={shell}
             session={online.session}
-            confirmMoves={confirmMoves}
+            confirmMoves={prefs.confirmMoves}
             onConfirmMovesChange={handleConfirmMovesChange}
             hasPremove={Boolean(pendingPremove)}
             onClearPremove={handleClearPremove}

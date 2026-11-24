@@ -18,6 +18,8 @@ import { authApi } from "../auth/api"
 import { loadWasmRules } from "../chess/wasmRules"
 
 beforeEach(() => {
+  window.localStorage.clear()
+  document.documentElement.removeAttribute("data-theme")
   vi.mocked(authApi.getSession).mockResolvedValue(null)
   vi.mocked(loadWasmRules).mockResolvedValue({
     legalMoves: () => [
@@ -44,6 +46,7 @@ beforeEach(() => {
     ],
     applyMove: () =>
       "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+    toSan: () => "e4",
   })
 })
 

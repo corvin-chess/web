@@ -13,7 +13,7 @@
 
 <br/>
 
-Vite React TypeScript play client with `/play` lobby quick pair, online clocks, keyboard play with Escape clear, persistent aria-live SAN announcements, single premoves with optional move confirm, and offers against [server](https://github.com/corvin-chess/server), local board legality via [chess-core](https://github.com/corvin-chess/chess-core) WASM, Corvid pieces, `/login` passkey plus email OTP auth, a PROTOCOL WebSocket client with reconnect resume, and Playwright two-browser rated/casual CI. Analysis stays Planned.
+Vite React TypeScript play client with `/play` lobby quick pair, online clocks, keyboard play with Escape clear, persistent aria-live SAN announcements, single premoves with optional move confirm, light/dark theme and mute-safe play sounds with localStorage prefs, and offers against [server](https://github.com/corvin-chess/server), local board legality via [chess-core](https://github.com/corvin-chess/chess-core) WASM, Corvid pieces, `/login` passkey plus email OTP auth, a PROTOCOL WebSocket client with reconnect resume, and Playwright two-browser rated/casual CI. Analysis stays Planned.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=0:0b0d12,35:8fa3d9,70:c9a227,100:0b0d12" width="100%" alt="" />
 
@@ -21,7 +21,7 @@ Vite React TypeScript play client with `/play` lobby quick pair, online clocks, 
 
 <p align="center"><img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=700&size=18&color=8FA3D9&center=true&vCenter=true&width=420&height=40&duration=1&pause=1000000&letterSpacing=6px&lines=OVERVIEW" alt="Overview" /></p>
 
-TypeScript Vite React play client for Corvin. Signed-in `/play` opens a lobby with bullet/blitz/rapid quick pair, then an online board with server-authoritative clocks, a single client-side premove (auto-sent with `Move.premoved` when still legal), optional confirm-before-send, draw/takeback offers, resign, and abort. Tab enters the Ravenboard; arrows move focus; Enter or Space selects; Escape clears. Moves announce in locale SAN through a persistent polite `aria-live` region (online from PROTOCOL `MoveApplied.san`; local via WASM `toSan`). A Ravenboard from `@corvin-chess/design-system` with Corvid SVGs and a thin `corvin-play-wasm` bridge over [chess-core](https://github.com/corvin-chess/chess-core) keeps local and online move selection legal. `/login` covers passkey and email one-time-code flows against PROTOCOL `/api/v1/auth/*`. The `src/ws` client speaks PROTOCOL v1 Hello/Welcome/Ping, QuickPair/Move/offers, and reconnects with `ResumeGame`. CI runs Playwright with two browser contexts for rated and casual full games against a live [server](https://github.com/corvin-chess/server) (Postgres session seed; no OTP in logs). Planned: locales packages from [translations](https://github.com/corvin-chess/translations), and analysis via [engine](https://github.com/corvin-chess/engine) WASM. No third-party engines, piece sets, or trackers.
+TypeScript Vite React play client for Corvin. Signed-in `/play` opens a lobby with bullet/blitz/rapid quick pair, then an online board with server-authoritative clocks, a single client-side premove (auto-sent with `Move.premoved` when still legal), optional confirm-before-send, draw/takeback offers, resign, and abort. Preferences persist theme (`system` / light / dark via `data-theme`) and master mute plus per-event play SFX (move, capture, check, game-end, offer) using original WAVs from [assets](https://github.com/corvin-chess/assets) under `public/sounds/`. Tab enters the Ravenboard; arrows move focus; Enter or Space selects; Escape clears. Moves announce in locale SAN through a persistent polite `aria-live` region (online from PROTOCOL `MoveApplied.san`; local via WASM `toSan`). A Ravenboard from `@corvin-chess/design-system` with Corvid SVGs and a thin `corvin-play-wasm` bridge over [chess-core](https://github.com/corvin-chess/chess-core) keeps local and online move selection legal. `/login` covers passkey and email one-time-code flows against PROTOCOL `/api/v1/auth/*`. The `src/ws` client speaks PROTOCOL v1 Hello/Welcome/Ping, QuickPair/Move/offers, and reconnects with `ResumeGame`. CI runs Playwright with two browser contexts for rated and casual full games against a live [server](https://github.com/corvin-chess/server) (Postgres session seed; no OTP in logs). Planned: locales packages from [translations](https://github.com/corvin-chess/translations), and analysis via [engine](https://github.com/corvin-chess/engine) WASM. No third-party engines, piece sets, or trackers.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=0:0b0d12,35:8fa3d9,70:c9a227,100:0b0d12" width="100%" alt="" />
 
@@ -55,7 +55,7 @@ npm run build:wasm
 
 <p align="center"><img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=700&size=18&color=8FA3D9&center=true&vCenter=true&width=420&height=40&duration=1&pause=1000000&letterSpacing=6px&lines=DEVELOPMENT" alt="Development" /></p>
 
-`src/App.tsx` routes `/play` to `src/play/PlayPage.tsx` (lobby, online game chrome, local board) and `/login` to `src/auth/AuthPage.tsx` inside `AuthProvider`. Online session state lives in `src/play/onlineSession.ts` with clocks in `clockDisplay.ts`; `useOnlinePlay` binds the PROTOCOL `WsClient`. Premoves use `premoveGeometry` / `premove` and prefs in `playPrefs.ts`. SAN live-region helpers live in `announceSan.ts`; Escape clear and local SAN announce live in `PlayBoard`. Board legality lives in `src/chess` with the built package under `src/chess/pkg` from `crates/corvin-play-wasm` (`legalMoves`, `applyMove`, `toSan`). Corvid SVGs are under `public/pieces/corvid`. Auth and play-shell strings live in `src/locales/{en,it}/`. Global styles in `src/styles.css` import `@corvin-chess/design-system/tokens.css`. The design-system dependency is pinned to a GitHub commit until `@corvin-chess` npm publish exists.
+`src/App.tsx` routes `/play` to `src/play/PlayPage.tsx` (lobby, online game chrome, local board, prefs) and `/login` to `src/auth/AuthPage.tsx` inside `AuthProvider`. Online session state lives in `src/play/onlineSession.ts` with clocks in `clockDisplay.ts`; `useOnlinePlay` binds the PROTOCOL `WsClient`. Premoves use `premoveGeometry` / `premove` and prefs in `playPrefs.ts` (theme + sound). `theme.ts` sets `data-theme`; `soundPlayer.ts` plays `/sounds/*.wav`. SAN live-region helpers live in `announceSan.ts`; Escape clear and local SAN announce live in `PlayBoard`. Board legality lives in `src/chess` with the built package under `src/chess/pkg` from `crates/corvin-play-wasm` (`legalMoves`, `applyMove`, `toSan`). Corvid SVGs are under `public/pieces/corvid`; play SFX under `public/sounds`. Auth and play-shell strings live in `src/locales/{en,it}/`. Global styles in `src/styles.css` import `@corvin-chess/design-system/tokens.css`. The design-system dependency is pinned to a GitHub commit until `@corvin-chess` npm publish exists.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=0:0b0d12,35:8fa3d9,70:c9a227,100:0b0d12" width="100%" alt="" />
 
@@ -71,12 +71,13 @@ node scripts/verify-ws.mjs
 node scripts/verify-board-play.mjs
 node scripts/verify-play-ui.mjs
 node scripts/verify-a11y-play.mjs
+node scripts/verify-theme-sound.mjs
 node scripts/verify-e2e.mjs
 node scripts/verify-readme.mjs
 npm run build
 ```
 
-Play-ui checks cover lobby/online wiring, premove auto-fire + confirm prefs, WsClient GameStart handlers, and en/it play-shell parity. A11y checks cover Escape clear, persistent aria-live SAN, WASM `toSan`, keyboard tests, and focus-visible styles. Vitest covers online session, clocks, premove geometry/resolve, prefs, WS send, PlayPage lobby, and keyboard SAN announce. `node scripts/verify-e2e.mjs` asserts Playwright shape. Full two-browser games need a live server with Redis and Postgres: migrate, `node scripts/e2e-seed.mjs`, start the server, then `CORVIN_E2E=1 npm run test:e2e`. Lighthouse budgets stay Planned (CV-320).
+Play-ui checks cover lobby/online wiring, premove auto-fire + confirm prefs, WsClient GameStart handlers, and en/it play-shell parity. Theme/sound checks cover persisted prefs, `data-theme` apply, WAV assets, and mute gates. A11y checks cover Escape clear, persistent aria-live SAN, WASM `toSan`, keyboard tests, and focus-visible styles. Vitest covers online session, clocks, premove geometry/resolve, prefs, theme, SAN-to-SFX, WS send, PlayPage lobby, and keyboard SAN announce. `node scripts/verify-e2e.mjs` asserts Playwright shape. Full two-browser games need a live server with Redis and Postgres: migrate, `node scripts/e2e-seed.mjs`, start the server, then `CORVIN_E2E=1 npm run test:e2e`. Lighthouse budgets stay Planned (CV-320).
 
 <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=0:0b0d12,35:8fa3d9,70:c9a227,100:0b0d12" width="100%" alt="" />
 
@@ -102,6 +103,7 @@ Structure: `src/play` (lobby, online session, clocks, board shell), `src/chess` 
 | Keyboard + aria-live SAN | Built |
 | Playwright e2e | Built |
 | Docker image | Built |
+| Theme / sound prefs | Built |
 | Analysis UI | Planned |
 | Auth UI | Built |
 | WS client | Built |
@@ -115,6 +117,6 @@ Structure: `src/play` (lobby, online session, clocks, board shell), `src/chess` 
 
 ## License
 
-This repository is licensed under AGPL-3.0-or-later. Corvid piece SVGs under `public/pieces/corvid` are CC BY-SA 4.0 (see `public/pieces/NOTICE.md`).
+This repository is licensed under AGPL-3.0-or-later. Corvid piece SVGs under `public/pieces/corvid` and play WAVs under `public/sounds` are CC BY-SA 4.0 (see `public/pieces/NOTICE.md` and `public/sounds/NOTICE.md`).
 
 <img src="https://capsule-render.vercel.app/api?type=waving&section=footer&height=110&color=0:0b0d12,55:161b2b,100:2f3d63" alt="" width="100%" />

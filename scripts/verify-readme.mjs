@@ -155,6 +155,7 @@ if (!statusTableMatch) {
   let sawPlayUiBuilt = false
   let sawPlaywrightBuilt = false
   let sawDockerBuilt = false
+  let sawThemeSoundBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -189,6 +190,9 @@ if (!statusTableMatch) {
     if (/^Docker image$/i.test(area) && /^Built$/i.test(state)) {
       sawDockerBuilt = true
     }
+    if (/^Theme \/ sound prefs$/i.test(area) && /^Built$/i.test(state)) {
+      sawThemeSoundBuilt = true
+    }
     if (/^(Analysis UI|Implementation)$/i.test(area) && !/^Planned$/i.test(state)) {
       fail(`STATUS row "${area}" must stay Planned until code exists; got "${state}"`)
     }
@@ -204,6 +208,7 @@ if (!statusTableMatch) {
   if (!sawPlayUiBuilt) fail('STATUS must include "| Play UI | Built |"')
   if (!sawPlaywrightBuilt) fail('STATUS must include "| Playwright e2e | Built |"')
   if (!sawDockerBuilt) fail('STATUS must include "| Docker image | Built |"')
+  if (!sawThemeSoundBuilt) fail('STATUS must include "| Theme / sound prefs | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }

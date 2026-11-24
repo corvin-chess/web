@@ -79,5 +79,19 @@
     "accept": "Accept",
     "decline": "Decline",
     "withdraw": "Withdraw offer"
+  },
+  "prefs": {
+    "title": "Preferences",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "soundMute": "Mute all sounds",
+    "soundEvents": "Sounds",
+    "soundMove": "Move",
+    "soundCapture": "Capture",
+    "soundCheck": "Check",
+    "soundGameEnd": "Game end",
+    "soundOffer": "Offer"
   }
 }

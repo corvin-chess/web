@@ -37,10 +37,14 @@ if (existsSync(pkgGitignore)) {
 }
 
 const dTs = readFileSync(join(pkgDir, "corvin_play_wasm.d.ts"), "utf8")
-if (!dTs.includes("legalMoves") || !dTs.includes("applyMove")) {
-  fail("pkg typings must export legalMoves and applyMove")
+if (
+  !dTs.includes("legalMoves") ||
+  !dTs.includes("applyMove") ||
+  !dTs.includes("toSan")
+) {
+  fail("pkg typings must export legalMoves, applyMove, and toSan")
 } else {
-  ok("pkg typings export legalMoves + applyMove")
+  ok("pkg typings export legalMoves + applyMove + toSan")
 }
 
 const piecesDir = join(root, "public", "pieces", "corvid")
@@ -152,6 +156,12 @@ try {
     fail("illegal applyMove e2e5 should throw")
   } catch {
     ok("illegal applyMove throws")
+  }
+  const san = mod.toSan(START, "e2e4")
+  if (san !== "e4") {
+    fail(`toSan e2e4 expected e4, got ${san}`)
+  } else {
+    ok("WASM toSan(e2e4) === e4")
   }
 } catch (err) {
   fail(`WASM node smoke failed: ${err}`)

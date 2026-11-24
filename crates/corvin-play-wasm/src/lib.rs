@@ -32,14 +32,28 @@ pub fn legal_moves(fen: &str) -> Result<Vec<String>, JsValue> {
 /// Apply a legal UCI move; returns the resulting FEN.
 #[wasm_bindgen(js_name = applyMove)]
 pub fn apply_move(fen: &str, uci: &str) -> Result<String, JsValue> {
+    let (position, mv) = parse_legal_uci(fen, uci)?;
+    let next = position
+        .try_make_move(mv)
+        .ok_or_else(|| JsValue::from_str("illegal move"))?;
+    Ok(next.to_fen())
+}
+
+/// SAN for a legal UCI move in `fen` (includes `+` / `#` when applicable).
+#[wasm_bindgen(js_name = toSan)]
+pub fn to_san(fen: &str, uci: &str) -> Result<String, JsValue> {
+    let (position, mv) = parse_legal_uci(fen, uci)?;
+    position
+        .to_san(mv)
+        .map_err(|e| JsValue::from_str(&format!("invalid SAN: {e}")))
+}
+
+fn parse_legal_uci(fen: &str, uci: &str) -> Result<(Position, Move), JsValue> {
     if uci.len() > MAX_UCI_LEN {
         return Err(JsValue::from_str("invalid UCI: input too long"));
     }
     let position = parse_position(fen)?;
     let mv =
         Move::from_uci(uci).map_err(|_| JsValue::from_str("invalid UCI: parse failed"))?;
-    let next = position
-        .try_make_move(mv)
-        .ok_or_else(|| JsValue::from_str("illegal move"))?;
-    Ok(next.to_fen())
+    Ok((position, mv))
 }

@@ -33,6 +33,7 @@ describe("LocalBoard", () => {
     const rules: ChessRules = {
       legalMoves: vi.fn().mockReturnValue(startMoves),
       applyMove: vi.fn().mockReturnValue(after),
+      toSan: vi.fn().mockReturnValue("e4"),
     }
     const announce = vi.fn()
     render(<LocalBoard rules={rules} announce={announce} />)
@@ -48,7 +49,8 @@ describe("LocalBoard", () => {
     // setFen replaces the square nodes; re-query before the destination click.
     fireEvent.click(document.getElementById("corvin-sq-e4")!)
     expect(rules.applyMove).toHaveBeenCalledWith(expect.any(String), "e2e4")
-    expect(screen.getByRole("status")).toHaveTextContent("Played e2e4")
+    expect(screen.getByRole("status")).toHaveTextContent("Played e4")
+    expect(announce).toHaveBeenCalledWith("e4")
   })
 
   it("applies a move via keyboard Enter on focus squares", () => {
@@ -57,8 +59,10 @@ describe("LocalBoard", () => {
     const rules: ChessRules = {
       legalMoves: vi.fn().mockReturnValue(startMoves),
       applyMove: vi.fn().mockReturnValue(after),
+      toSan: vi.fn().mockReturnValue("e4"),
     }
-    render(<LocalBoard rules={rules} />)
+    const announce = vi.fn()
+    render(<LocalBoard rules={rules} announce={announce} />)
     const boardEl = () => screen.getByRole("grid", { name: "Chess board" })
     boardEl().focus()
 
@@ -71,5 +75,23 @@ describe("LocalBoard", () => {
     fireEvent.keyDown(boardEl(), { key: "ArrowUp" })
     fireEvent.keyDown(boardEl(), { key: "Enter" })
     expect(rules.applyMove).toHaveBeenCalledWith(expect.any(String), "e2e4")
+    expect(screen.getByRole("status")).toHaveTextContent("Played e4")
+    expect(announce).toHaveBeenCalledWith("e4")
+  })
+
+  it("Escape clears a keyboard selection", () => {
+    const rules: ChessRules = {
+      legalMoves: vi.fn().mockReturnValue(startMoves),
+      applyMove: vi.fn(),
+      toSan: vi.fn(),
+    }
+    render(<LocalBoard rules={rules} />)
+    const boardEl = () => screen.getByRole("grid", { name: "Chess board" })
+    boardEl().focus()
+    fireEvent.keyDown(boardEl(), { key: "Enter" })
+    expect(document.querySelector(".corvin-sq--legal")).toBeTruthy()
+    fireEvent.keyDown(boardEl(), { key: "Escape" })
+    expect(document.querySelector(".corvin-sq--legal")).toBeFalsy()
+    expect(screen.getByRole("status")).toHaveTextContent(/Select a piece/i)
   })
 })

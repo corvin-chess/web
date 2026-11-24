@@ -1,0 +1,17 @@
+{
+  "name": "corvin-play-wasm",
+  "type": "module",
+  "description": "Thin WASM bridge: chess-core legalMoves + applyMove for the Corvin web client",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
+  "files": [
+    "corvin_play_wasm_bg.wasm",
+    "corvin_play_wasm.js",
+    "corvin_play_wasm.d.ts"
+  ],
+  "main": "corvin_play_wasm.js",
+  "types": "corvin_play_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

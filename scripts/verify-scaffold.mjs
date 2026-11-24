@@ -114,11 +114,14 @@ if (play) {
   if (!/aria-label=["']Play["']/.test(play)) {
     fail('PlayPage main must have aria-label="Play"')
   }
-  // Blank: no board mount, no WS, no auth forms in this task
-  if (/mountBoard|WebSocket|passkey|OTP/i.test(play)) {
-    fail("PlayPage must stay blank (no board/WS/auth yet)")
+  // CV-193: local board via LocalBoard; keep auth forms and raw WS off PlayPage.
+  if (!/LocalBoard/.test(play) || !/loadWasmRules/.test(play)) {
+    fail("PlayPage must mount LocalBoard via loadWasmRules")
   }
-  if (!process.exitCode) ok("PlayPage blank accessible shell")
+  if (/passkey|OTP|WebSocket/i.test(play)) {
+    fail("PlayPage must not embed auth forms or raw WebSocket")
+  }
+  if (!process.exitCode) ok("PlayPage local board shell")
 }
 
 const styles = read("src/styles.css")

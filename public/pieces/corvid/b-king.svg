@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" width="45" height="45" role="img" aria-label="Black King">
+
+  
+  <path fill="#1a1f2e" stroke="#8fa3d9" stroke-width="1.5" stroke-linejoin="round"
+    d="M8.5 40.2h28c1.4 0 2.3.9 2.3 2v.3c0 .8-.7 1.5-1.5 1.5H7.7c-.8 0-1.5-.7-1.5-1.5v-.3c0-1.1.9-2 2.3-2z"/>
+  <path fill="#252b3d" stroke="none"
+    d="M10.2 40.5h24.6c.7 0 1.2.3 1.2.8v.4H9v-.4c0-.5.5-.8 1.2-.8z"/>
+  <path fill="#1a1f2e" stroke="#8fa3d9" stroke-width="1.5" stroke-linejoin="round"
+    d="M11.5 36.2h22l1.5 4H10z"/>
+
+  <path fill="#1a1f2e" stroke="#8fa3d9" stroke-width="1.5" stroke-linejoin="round"
+    d="M13.5 35.8c0-8.2 3.2-13.8 9-17.4 5.8 3.6 9 9.2 9 17.4z"/>
+  <path fill="#252b3d" stroke="none"
+    d="M15.8 34.2c.6-6.4 2.8-10.8 6.7-13.6 3.9 2.8 6.1 7.2 6.7 13.6z"/>
+  <circle fill="#1a1f2e" stroke="#8fa3d9" stroke-width="1.5" cx="22.5" cy="15.2" r="4.2"/>
+  <path fill="none" stroke="#8fa3d9" stroke-width="1.5" stroke-linecap="round"
+    d="M22.5 3.2v7.6M19.2 6.2h6.6"/>
+
+</svg>

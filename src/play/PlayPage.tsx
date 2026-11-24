@@ -1,10 +1,14 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../auth/AuthProvider"
-import { getAuthStrings, resolveLocale } from "../locales"
+import { loadWasmRules } from "../chess/wasmRules"
+import type { ChessRules } from "../chess/types"
+import { getAuthStrings, getPlayStrings, resolveLocale } from "../locales"
+import { LocalBoard } from "./LocalBoard"
 
 /**
- * Blank play shell (CV-190). Board, clocks, offers, and WS arrive in later tasks.
- * Sign-in entry for CV-191 lives at /login (no auth forms here).
+ * Play shell with local board legality via chess-core WASM (CV-193).
+ * Online clocks/offers/WS play arrive in CV-194+.
  */
 export const PlayPage = () => {
   const { session, loading } = useAuth()
@@ -12,6 +16,23 @@ export const PlayPage = () => {
     typeof navigator !== "undefined" ? navigator.language : "en"
   )
   const signInLabel = getAuthStrings(locale).signInLink
+  const playStrings = getPlayStrings(locale)
+  const [rules, setRules] = useState<ChessRules | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    loadWasmRules()
+      .then((r) => {
+        if (!cancelled) setRules(r)
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(playStrings.loadError)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [playStrings.loadError])
 
   return (
     <main className="play-shell" aria-label="Play" tabIndex={-1}>
@@ -27,6 +48,17 @@ export const PlayPage = () => {
           </Link>
         )}
       </nav>
+      {loadError ? (
+        <p className="play-board-error" role="alert">
+          {loadError}
+        </p>
+      ) : rules ? (
+        <LocalBoard rules={rules} />
+      ) : (
+        <p className="play-board-loading" role="status">
+          {playStrings.loadingBoard}
+        </p>
+      )}
     </main>
   )
 }

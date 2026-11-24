@@ -68,6 +68,58 @@ body {
   outline-offset: 2px;
 }
 
+.local-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem 2rem;
+}
+
+.local-board-host {
+  width: min(100%, 70vh);
+  max-width: 36rem;
+}
+
+.local-board-status,
+.play-board-loading,
+.play-board-error {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--mist);
+  text-align: center;
+}
+
+.play-board-error {
+  color: var(--danger);
+}
+
+/* Legal-move markers (DESIGN.md mist disc / capture ring). */
+.corvin-sq--legal::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: var(--mist);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.corvin-sq--legal-capture::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 12%;
+  border-radius: 50%;
+  border: 3px solid var(--mist);
+  opacity: 0.7;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
 .auth-shell {
   min-height: 100%;
   max-width: 28rem;

@@ -5,3 +5,5 @@ dist/
 coverage/
 *.tsbuildinfo
 .vite/
+crates/corvin-play-wasm/target/
+crates/corvin-play-wasm/Cargo.lock

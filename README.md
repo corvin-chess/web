@@ -101,6 +101,7 @@ Structure: `src/play` (lobby, online session, clocks, board shell), `src/chess` 
 | Premoves + confirm | Built |
 | Keyboard + aria-live SAN | Built |
 | Playwright e2e | Built |
+| Docker image | Built |
 | Analysis UI | Planned |
 | Auth UI | Built |
 | WS client | Built |

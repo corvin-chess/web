@@ -149,6 +149,7 @@ if (!statusTableMatch) {
   const stateCells = [...table.matchAll(/\|\s*([^|\n]+)\s*\|\s*([^|\n]+)\s*\|/g)]
   let sawReadmeBuilt = false
   let sawScaffoldBuilt = false
+  let sawAuthBuilt = false
   let sawImplPlanned = false
   for (const [, areaRaw, stateRaw] of stateCells) {
     const area = areaRaw.trim()
@@ -165,8 +166,11 @@ if (!statusTableMatch) {
     if (/^Application scaffold$/i.test(area) && /^Built$/i.test(state)) {
       sawScaffoldBuilt = true
     }
+    if (/^Auth UI$/i.test(area) && /^Built$/i.test(state)) {
+      sawAuthBuilt = true
+    }
     if (
-      /^(Play UI|Analysis UI|Auth UI|Implementation)$/i.test(area) &&
+      /^(Play UI|Analysis UI|Implementation)$/i.test(area) &&
       !/^Planned$/i.test(state)
     ) {
       fail(`STATUS row "${area}" must stay Planned until code exists; got "${state}"`)
@@ -177,6 +181,7 @@ if (!statusTableMatch) {
   }
   if (!sawReadmeBuilt) fail('STATUS must include "| README | Built |"')
   if (!sawScaffoldBuilt) fail('STATUS must include "| Application scaffold | Built |"')
+  if (!sawAuthBuilt) fail('STATUS must include "| Auth UI | Built |"')
   if (!sawImplPlanned) fail('STATUS must include "| Implementation | Planned |"')
   if (!process.exitCode) ok("STATUS rows use Planned/Built correctly")
 }

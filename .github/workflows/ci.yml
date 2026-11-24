@@ -53,10 +53,11 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       CORVIN_ENV: test
       CORVIN_RP_ID: localhost
-      CORVIN_RP_ORIGIN: http://127.0.0.1:5173
+      # webauthn-rs rejects 127.0.0.1; keep host name as localhost.
+      CORVIN_RP_ORIGIN: http://localhost:5173
       CORVIN_OTP_PEPPER: e2e-only-otp-pepper-change-me!!
       CORVIN_E2E: "1"
-      CORVIN_E2E_ORIGIN: http://127.0.0.1:5173
+      CORVIN_E2E_ORIGIN: http://localhost:5173
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4

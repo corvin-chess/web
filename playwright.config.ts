@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test"
 
-const origin = process.env.CORVIN_E2E_ORIGIN ?? "http://127.0.0.1:5173"
+const origin = process.env.CORVIN_E2E_ORIGIN ?? "http://localhost:5173"
 
 // CI must not exit 0 with every e2e test skipped.
 if (process.env.CI && process.env.CORVIN_E2E !== "1") {
@@ -25,7 +25,7 @@ export default defineConfig({
   webServer: process.env.CORVIN_E2E_MANAGED_WEBSERVER
     ? undefined
     : {
-        command: "npm run dev -- --host 127.0.0.1 --port 5173",
+        command: "npm run dev -- --host localhost --port 5173",
         url: origin,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

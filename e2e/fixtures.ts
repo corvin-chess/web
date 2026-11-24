@@ -33,4 +33,4 @@ export const PLAYER_B: E2ePlayer = {
   csrfHex: "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
 }
 
-export const PLAY_ORIGIN = process.env.CORVIN_E2E_ORIGIN ?? "http://127.0.0.1:5173"
+export const PLAY_ORIGIN = process.env.CORVIN_E2E_ORIGIN ?? "http://localhost:5173"
